@@ -1,0 +1,239 @@
+﻿<Window x:Class="Comida.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Comida"
+        mc:Ignorable="d"
+        Title="Comida"
+        Height="700"
+        Width="950"
+        MinHeight="500"
+        MinWidth="650"
+        Icon="assets/food.ico"
+        Background="LightSkyBlue">
+ 
+    <Window.Resources>
+        
+        <!-- Si queremos utilizar CONVERSOR de visibilidad para los alérgenos -->
+        <!--<local:VisibilityConverter x:Key="conversorVisibilidad"></local:VisibilityConverter>-->
+
+        <!-- Para incluir las "fonts" nuevas para la aplicación -->
+        <FontFamily x:Key="fontChinese">pack://application:,,,/Fonts/#Chinese Wok Food St</FontFamily>
+        <FontFamily x:Key="fontTaco">pack://application:,,,/Fonts/#Taco Salad</FontFamily>
+        <FontFamily x:Key="fontSlim">pack://application:,,,/Fonts/#Slim Summer</FontFamily>
+        
+        <Style TargetType="TextBlock" x:Key="fontNombrePlato">
+            <Setter Property="HorizontalAlignment"
+                    Value="Center"></Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Tipo}" Value="China">
+                    <Setter Property="FontFamily" Value="{StaticResource fontChinese}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Tipo}" Value="Mexicana">
+                    <Setter Property="FontFamily" Value="{StaticResource fontTaco}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Tipo}" Value="Americana">
+                    <Setter Property="FontFamily" Value="{StaticResource fontSlim}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <!-- END "fonts" nuevas -->
+
+        <!-- Estilos para la "bandera" de cada país. -->
+        <Style TargetType="Image" x:Key="bandera">
+            <Setter Property="Width"
+                    Value="36"></Setter>
+            <Setter Property="Margin"
+                    Value="10,0,0,0"></Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Tipo}"
+                             Value="China">
+                    <Setter Property="Source"
+                            Value="Assets\china.png"></Setter>
+                    <Setter Property="ToolTip"
+                            Value="Comida china"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Tipo}"
+                             Value="Mexicana">
+                    <Setter Property="Source"
+                            Value="Assets\mexico.png"></Setter>
+                    <Setter Property="ToolTip"
+                            Value="Comida mexicana"></Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=Tipo}"
+                             Value="Americana">
+                    <Setter Property="Source"
+                            Value="Assets\usa.png"></Setter>
+                    <Setter Property="ToolTip"
+                            Value="Comida americana"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <!-- END estilos "badera" de cada país. -->
+ 
+        <!-- Estilos para "alergenos" -->
+        <Style TargetType="{x:Type Image}" x:Key="alergenos">
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Margin" Value="0,0,2,0"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+        </Style>
+
+        <Style TargetType="{x:Type Image}" x:Key="glutenImagen" BasedOn="{StaticResource alergenos}">
+            <Setter Property="Source" Value="Assets/gluten.png"/>
+            <Setter Property="ToolBar.ToolTip" Value="Gluten"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Gluten}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style TargetType="{x:Type Image}" x:Key="sojaImagen" BasedOn="{StaticResource alergenos}">
+            <Setter Property="Source" Value="Assets/soybean.png"/>
+            <Setter Property="ToolBar.ToolTip" Value="Soja"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Soja}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style TargetType="{x:Type Image}" x:Key="lecheImagen" BasedOn="{StaticResource alergenos}">
+            <Setter Property="Source" Value="Assets/milk.png"/>
+            <Setter Property="ToolBar.ToolTip" Value="Leche"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Leche}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style TargetType="{x:Type Image}" x:Key="sulfitosImagen" BasedOn="{StaticResource alergenos}">
+            <Setter Property="Source" Value="Assets/sulfide.png"/>
+            <Setter Property="ToolBar.ToolTip" Value="Sulfitos"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=Sulfitos}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <!-- END estilos "alergenos" -->
+  
+        <!-- Plantilla para cada "tarjeta-plato" de la LISTA. -->
+        <!-- Podemos utilizar la "plantilla implícita" -->
+        <!-- <DataTemplate DataType="{x:Type local:Plato}">-->
+        <DataTemplate x:Key="plantillaPlatos">
+            <Border BorderThickness="1"
+                    BorderBrush="Black"
+                    Background="AliceBlue"
+                    Height="280"
+                    Width="240"
+                    Margin="10"
+                    Padding="10,0,10,5">
+                <Border.Effect>
+                    <DropShadowEffect></DropShadowEffect>
+                </Border.Effect>
+                <StackPanel>
+                    <Viewbox Height="60">
+                        <TextBlock Text="{Binding Path=Nombre}"
+                                   Style="{StaticResource fontNombrePlato}">
+                        </TextBlock>
+                    </Viewbox>
+                    <Image Source="{Binding Path=Imagen}"
+                           Margin="10,0,10,10"
+                           Width="200"
+                           Height="170"
+                           Stretch="UniformToFill"></Image>
+                    <DockPanel LastChildFill="False">
+                        <Image Style="{StaticResource bandera}" DockPanel.Dock="Left"/>
+                        <StackPanel Orientation="Horizontal"
+                                    DockPanel.Dock="Right"
+                                    Margin="0,0,5,0">
+                            <Image Style="{StaticResource glutenImagen}"/>
+                            <Image Style="{StaticResource lecheImagen}"/>
+                            <Image Style="{StaticResource sulfitosImagen}"/>
+                            <Image Style="{StaticResource sojaImagen}"/>
+                        </StackPanel>
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+        <!-- END plantilla "tarjeta-plato" de la LISTA. -->
+        
+        <!-- Estilos para los elementos del formulario -->
+        <Style TargetType="StackPanel" x:Key="formulario">
+            <Setter Property="IsEnabled" Value="True"></Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=PlatoSeleccionado}" Value="{x:Null}">
+                    <Setter Property="IsEnabled" Value="False"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Margin"
+                   Value="0,0,0,10"></Setter>
+        </Style>
+        <!-- END estilos formulario -->
+
+    </Window.Resources>
+ 
+    <Border Margin="10"
+            Padding="10,10,10,5"
+            BorderThickness="1"
+            BorderBrush="Black"
+            Background="White">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition Width="300"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            
+            <ListBox x:Name="platosListBox"
+                     Grid.Column="0"
+                     ItemsSource="{Binding Path=ListaPlatos}"
+                     SelectedItem="{Binding Path=PlatoSeleccionado}"
+                     ItemTemplate="{StaticResource plantillaPlatos}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+            
+            <Border    Grid.Column="1"
+                       Background="Gainsboro"
+                       Margin="15,0,5,0"
+                       Padding="10">
+                
+                <StackPanel Style="{StaticResource formulario}">
+                    <TextBlock>Nombre del plato</TextBlock>
+                    <TextBox Text="{Binding Path=PlatoSeleccionado.Nombre, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    <TextBlock>Foto del plato</TextBlock>
+                    <TextBox Text="{Binding Path=PlatoSeleccionado.Imagen, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    <TextBlock>Tipo de comida</TextBlock>
+                    <ComboBox ItemsSource="{Binding Path=TiposComida}"
+                              SelectedItem="{Binding Path=PlatoSeleccionado.Tipo, UpdateSourceTrigger=PropertyChanged}"
+                              Margin="0,0,0,10">
+                    </ComboBox>
+                    <GroupBox Header="Alérgenos"
+                              BorderBrush="Black"
+                              BorderThickness="1"
+                              Padding="5,5,5,0">
+                        <UniformGrid>
+                            <CheckBox IsChecked="{Binding Path=PlatoSeleccionado.Leche}"
+                                      Margin="0,0,0,10">Leche</CheckBox>
+                            <CheckBox IsChecked="{Binding Path=PlatoSeleccionado.Soja}">Soja</CheckBox>
+                            <CheckBox IsChecked="{Binding Path=PlatoSeleccionado.Gluten}">Gluten</CheckBox>
+                            <CheckBox IsChecked="{Binding Path=PlatoSeleccionado.Sulfitos}">Sulfitos</CheckBox>
+                        </UniformGrid>
+                    </GroupBox>
+                    <Button x:Name="LimpiarSeleccionButton" Click="LimpiarSeleccionButton_Click" Margin="0,10,0,0" Background="LightSkyBlue" Width="120" HorizontalAlignment="Left">Limpiar selección</Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>
